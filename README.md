@@ -3,8 +3,6 @@
 A real-time chat app: a WPF desktop client talking to an ASP.NET Core server over SignalR,
 with MySQL for message history. Kept intentionally simple.
 
-![Karma screenshot](docs/screenshot.png)
-
 ## What it does
 
 - Real-time messaging — messages show up instantly on every connected client, no polling.
@@ -65,3 +63,7 @@ ChatApp.Server/   ASP.NET Core app: the SignalR hub, EF Core models, MySQL migra
 ChatApp.Client/   WPF app: login screen, chat window, room sidebar
 docker-compose.yml  MySQL container definition
 ```
+
+## How the app looks like 
+
+![Karma screenshot](docs/screenshot.png)
