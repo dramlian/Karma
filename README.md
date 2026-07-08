@@ -3,6 +3,8 @@
 A real-time chat app: a WPF desktop client talking to an ASP.NET Core server over SignalR,
 with MySQL for message history. Kept intentionally simple.
 
+![Karma screenshot](docs/screenshot.png)
+
 ## What it does
 
 - Real-time messaging — messages show up instantly on every connected client, no polling.
@@ -11,6 +13,8 @@ with MySQL for message history. Kept intentionally simple.
 - Message history is stored in MySQL, so the last 50 messages per room reload when you (re)join.
 - Automatic reconnect if the server restarts or the connection drops — the client picks its
   room back up once it's back online.
+- An emoji picker (the 🙂 button in the message box) — emoji render in full color, live as you
+  type, not just after sending.
 
 There's no accounts or authentication — you just type a username and you're in. It's meant for
 people on the same machine or local network to talk to each other, not a production chat service.
