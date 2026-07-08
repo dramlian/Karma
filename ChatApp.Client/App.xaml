@@ -6,21 +6,21 @@
         <ResourceDictionary>
 
             <!-- Palette -->
-            <SolidColorBrush x:Key="SurfaceBrush" Color="#171E30"/>
-            <SolidColorBrush x:Key="SurfaceAltBrush" Color="#1F2A44"/>
-            <SolidColorBrush x:Key="TextBrush" Color="#E8ECF6"/>
-            <SolidColorBrush x:Key="MutedBrush" Color="#8994AD"/>
-            <SolidColorBrush x:Key="BorderBrush" Color="#2A3452"/>
-            <SolidColorBrush x:Key="AccentSolidBrush" Color="#38BDF8"/>
+            <SolidColorBrush x:Key="SurfaceBrush" Color="#12121C"/>
+            <SolidColorBrush x:Key="SurfaceAltBrush" Color="#16162A"/>
+            <SolidColorBrush x:Key="TextBrush" Color="#F1F1F7"/>
+            <SolidColorBrush x:Key="MutedBrush" Color="#75758C"/>
+            <SolidColorBrush x:Key="BorderBrush" Color="#232336"/>
+            <SolidColorBrush x:Key="AccentSolidBrush" Color="#8B7CFF"/>
 
             <LinearGradientBrush x:Key="AccentBrush" StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#22D3EE" Offset="0"/>
-                <GradientStop Color="#7C5CFF" Offset="1"/>
+                <GradientStop Color="#A78BFA" Offset="0"/>
+                <GradientStop Color="#6C5CE7" Offset="1"/>
             </LinearGradientBrush>
 
             <LinearGradientBrush x:Key="WindowBg" StartPoint="0,0" EndPoint="0.4,1">
-                <GradientStop Color="#0B1122" Offset="0"/>
-                <GradientStop Color="#0D1730" Offset="1"/>
+                <GradientStop Color="#08080D" Offset="0"/>
+                <GradientStop Color="#0D0D18" Offset="1"/>
             </LinearGradientBrush>
 
             <!-- Accent (gradient) button -->
@@ -40,7 +40,7 @@
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="b" Property="Effect">
                                         <Setter.Value>
-                                            <DropShadowEffect Color="#7C5CFF" BlurRadius="26" ShadowDepth="0" Opacity="0.85"/>
+                                            <DropShadowEffect Color="#8B7CFF" BlurRadius="26" ShadowDepth="0" Opacity="0.85"/>
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
@@ -70,7 +70,7 @@
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="b" Property="Effect">
                                         <Setter.Value>
-                                            <DropShadowEffect Color="#22D3EE" BlurRadius="22" ShadowDepth="0" Opacity="0.9"/>
+                                            <DropShadowEffect Color="#8B7CFF" BlurRadius="22" ShadowDepth="0" Opacity="0.9"/>
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
@@ -110,7 +110,7 @@
             <!-- Rounded dark input -->
             <Style x:Key="InputBox" TargetType="TextBox">
                 <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                <Setter Property="CaretBrush" Value="#22D3EE"/>
+                <Setter Property="CaretBrush" Value="#8B7CFF"/>
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -119,6 +119,30 @@
                         <ControlTemplate TargetType="TextBox">
                             <Border x:Name="bd" Background="{StaticResource SurfaceBrush}" CornerRadius="13"
                                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="15,0">
+                                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AccentSolidBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Rounded dark input (rich text, for emoji-aware live typing) -->
+            <Style x:Key="InputBoxRich" TargetType="RichTextBox">
+                <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                <Setter Property="CaretBrush" Value="#8B7CFF"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RichTextBox">
+                            <Border x:Name="bd" Background="{StaticResource SurfaceBrush}" CornerRadius="13"
+                                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="15,0,44,0">
                                 <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>

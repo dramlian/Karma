@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace ChatApp.Client;
@@ -10,6 +11,13 @@ namespace ChatApp.Client;
 public partial class MainWindow : Window
 {
     private const string HubUrl = "http://localhost:5000/chathub";
+
+    private static readonly string[] Emojis =
+    {
+        "😀", "😂", "😉", "😊", "😍", "😘", "😎", "🤔", "😴", "😭",
+        "😡", "😱", "🥳", "🤯", "🙄", "😅", "🤝", "🙏", "👍", "👎",
+        "👏", "🙌", "👋", "❤️", "🔥", "🎉", "💯", "✨", "🚀", "💀",
+    };
 
     private readonly ObservableCollection<ChatMessage> _messages = new();
     private readonly ObservableCollection<string> _onlineUsers = new();
@@ -22,6 +30,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         MessagesList.ItemsSource = _messages;
         OnlineUsersList.ItemsSource = _onlineUsers;
+        EmojiList.ItemsSource = Emojis;
         Loaded += (_, _) => UsernameInput.Focus();
     }
 
@@ -66,7 +75,7 @@ public partial class MainWindow : Window
         _connection.Reconnecting += _ => { Dispatcher.Invoke(() => SetStatus("reconnecting…", "#FBBF24")); return Task.CompletedTask; };
         _connection.Reconnected += async _ =>
         {
-            Dispatcher.Invoke(() => SetStatus("connected", "#34D399"));
+            Dispatcher.Invoke(() => SetStatus("connected", "#2DD4BF"));
             try { await _connection!.InvokeAsync("JoinRoom", _username, _currentRoom); } catch { }
         };
         _connection.Closed += _ => { Dispatcher.Invoke(() => SetStatus("disconnected", "#F87171")); return Task.CompletedTask; };
@@ -84,7 +93,7 @@ public partial class MainWindow : Window
         }
 
         WhoAmI.Text = _username;
-        SetStatus("connected", "#34D399");
+        SetStatus("connected", "#2DD4BF");
         HighlightActiveRoom(_currentRoom);
         LoginView.Visibility = Visibility.Collapsed;
         ChatView.Visibility = Visibility.Visible;
@@ -93,15 +102,31 @@ public partial class MainWindow : Window
 
     private void MessageInput_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter) { e.Handled = true; _ = SendAsync(); }
+        if (e.Key != Key.Enter) return;
+        e.Handled = true;
+        // Deferred: the emoji-aware text box processes keystrokes slightly asynchronously,
+        // so reading Text immediately on Enter can miss the last character(s) typed.
+        Dispatcher.InvokeAsync(() => _ = SendAsync(), DispatcherPriority.ApplicationIdle);
+    }
+
+    private void EmojiButton_Click(object sender, RoutedEventArgs e) => EmojiPopup.IsOpen = !EmojiPopup.IsOpen;
+
+    private void Emoji_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (((FrameworkElement)sender).DataContext is not string emoji) return;
+
+        MessageInput.Text += emoji;
+        EmojiPopup.IsOpen = false;
+        MessageInput.Focus();
     }
 
     private async Task SendAsync()
     {
         var text = MessageInput.Text.Trim();
         if (string.IsNullOrEmpty(text) || _connection is null) return;
+        if (text.Length > 500) text = text[..500];
 
-        MessageInput.Clear();
+        MessageInput.Text = "";
         try
         {
             await _connection.SendAsync("SendMessage", _username, _currentRoom, text);
@@ -169,8 +194,8 @@ public partial class MainWindow : Window
 
     private void HighlightActiveRoom(string room)
     {
-        var accent = (Brush)new BrushConverter().ConvertFromString("#38BDF8")!;
-        var muted = (Brush)new BrushConverter().ConvertFromString("#8994AD")!;
+        var accent = (Brush)new BrushConverter().ConvertFromString("#8B7CFF")!;
+        var muted = (Brush)new BrushConverter().ConvertFromString("#75758C")!;
         foreach (var tab in new[] { GeneralRoomTab, RandomRoomTab, HelpRoomTab })
         {
             var isActive = (string)tab.Tag == room;

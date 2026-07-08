@@ -1,6 +1,7 @@
 <Window x:Class="ChatApp.Client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:emoji="http://schemas.inkore.net/lib/ui/wpf/emojis"
         Title="KARMA" Height="680" Width="620"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
@@ -62,7 +63,7 @@
                     <Button x:Name="JoinButton" Content="Enter chat  →" Style="{StaticResource AccentButton}"
                             Margin="0,18,0,0" Click="JoinButton_Click"/>
 
-                    <TextBlock x:Name="LoginError" Foreground="#FF7A7A" FontSize="12" TextWrapping="Wrap"
+                    <TextBlock x:Name="LoginError" Foreground="#F87171" FontSize="12" TextWrapping="Wrap"
                                HorizontalAlignment="Center" TextAlignment="Center" Margin="0,14,0,0" Visibility="Collapsed"/>
                     <TextBlock Text="server · localhost:5000" FontSize="11" Foreground="{StaticResource MutedBrush}"
                                HorizontalAlignment="Center" Margin="0,22,0,0" Opacity="0.55"/>
@@ -88,7 +89,7 @@
                         <TextBlock Text="ROOMS" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}" Margin="4,0,0,10"/>
                         <StackPanel Margin="0,0,0,24">
                             <Border x:Name="GeneralRoomTab" Tag="general" CornerRadius="10" Padding="12,9" Margin="0,0,0,4"
-                                    Background="#38BDF8" Cursor="Hand" MouseLeftButtonDown="RoomTab_Click">
+                                    Background="#8B7CFF" Cursor="Hand" MouseLeftButtonDown="RoomTab_Click">
                                 <TextBlock Text="general" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
                             </Border>
                             <Border x:Name="RandomRoomTab" Tag="random" CornerRadius="10" Padding="12,9" Margin="0,0,0,4"
@@ -106,7 +107,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="4,4">
-                                        <Ellipse Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center"/>
+                                        <Ellipse Width="7" Height="7" Fill="#2DD4BF" VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding}" Foreground="{StaticResource TextBrush}" FontSize="12" Margin="8,0,0,0"/>
                                     </StackPanel>
                                 </DataTemplate>
@@ -118,7 +119,7 @@
                 <!-- Header -->
                 <Border Grid.Column="1" Grid.Row="0" Padding="20,4,20,14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                     <StackPanel Orientation="Horizontal">
-                        <Ellipse x:Name="StatusDot" Width="9" Height="9" Fill="#34D399" VerticalAlignment="Center"/>
+                        <Ellipse x:Name="StatusDot" Width="9" Height="9" Fill="#2DD4BF" VerticalAlignment="Center"/>
                         <TextBlock x:Name="StatusText" Text="connected" Foreground="{StaticResource MutedBrush}"
                                    FontSize="12" Margin="8,0,0,0" VerticalAlignment="Center"/>
                         <TextBlock Text="·" Foreground="{StaticResource MutedBrush}" Margin="8,0,8,0" VerticalAlignment="Center"/>
@@ -137,8 +138,8 @@
                                             HorizontalAlignment="Left" Background="{StaticResource SurfaceBrush}">
                                         <StackPanel>
                                             <TextBlock x:Name="Who" Text="{Binding User}" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="#38BDF8" Margin="0,0,0,3"/>
-                                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap"
+                                                       Foreground="#8B7CFF" Margin="0,0,0,3"/>
+                                            <emoji:EmojiedTextBlock Text="{Binding Text}" TextWrapping="Wrap"
                                                        Foreground="{StaticResource TextBrush}" FontSize="14"/>
                                         </StackPanel>
                                     </Border>
@@ -162,23 +163,49 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
-                        <TextBox x:Name="MessageInput" Style="{StaticResource InputBox}" Height="46" MaxLength="500" KeyDown="MessageInput_KeyDown"/>
-                        <TextBlock Text="Type a message…" Foreground="{StaticResource MutedBrush}" Margin="16,0,0,0"
-                                   VerticalAlignment="Center" IsHitTestVisible="False">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Text, ElementName=MessageInput}" Value="">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                        <emoji:EmojiedRichTextBox x:Name="MessageInput" Style="{StaticResource InputBoxRich}" Height="46"
+                                                   PreviewKeyDown="MessageInput_KeyDown"/>
+
+                        <Button x:Name="EmojiButton" Style="{StaticResource IconButton}" FontSize="18"
+                                HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0"
+                                Content="🙂" Click="EmojiButton_Click"/>
+
+                        <Popup x:Name="EmojiPopup" PlacementTarget="{Binding ElementName=EmojiButton}"
+                               Placement="Top" VerticalOffset="-8" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Fade">
+                            <Border Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1" CornerRadius="14" Padding="8">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.5" Color="#000000"/>
+                                </Border.Effect>
+                                <ItemsControl x:Name="EmojiList">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="6"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="36" Height="36" CornerRadius="8" Cursor="Hand" MouseLeftButtonDown="Emoji_Click">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#1FFFFFFF"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <emoji:EmojiedTextBlock Text="{Binding}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </Popup>
                     </Grid>
                     <Button Grid.Column="1" x:Name="SendButton" Style="{StaticResource SendButton}" Width="46" Height="46"
-                            Margin="10,0,0,0" Content="➤" FontSize="15" Click="SendButton_Click"/>
+                            Margin="6,0,0,0" Content="➤" FontSize="15" Click="SendButton_Click"/>
                 </Grid>
             </Grid>
         </Grid>
