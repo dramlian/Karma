@@ -5,5 +5,6 @@ public class Message
     public int Id { get; set; }
     public string Username { get; set; } = "";
     public string Content { get; set; } = "";
+    public string Room { get; set; } = "general";
     public DateTime SentAt { get; set; }
 }

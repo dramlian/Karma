@@ -1,7 +1,7 @@
 <Window x:Class="ChatApp.Client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="KARMA" Height="680" Width="440"
+        Title="KARMA" Height="680" Width="620"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="CanMinimize" FontFamily="Segoe UI"
@@ -71,14 +71,52 @@
 
             <!-- CHAT VIEW -->
             <Grid Grid.Row="1" x:Name="ChatView" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="128"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
+                <!-- Sidebar -->
+                <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="3"
+                        Background="{StaticResource SurfaceAltBrush}" CornerRadius="0,0,0,20" Padding="14,20,14,14">
+                    <StackPanel>
+                        <TextBlock Text="ROOMS" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}" Margin="4,0,0,10"/>
+                        <StackPanel Margin="0,0,0,24">
+                            <Border x:Name="GeneralRoomTab" Tag="general" CornerRadius="10" Padding="12,9" Margin="0,0,0,4"
+                                    Background="#38BDF8" Cursor="Hand" MouseLeftButtonDown="RoomTab_Click">
+                                <TextBlock Text="general" FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                            </Border>
+                            <Border x:Name="RandomRoomTab" Tag="random" CornerRadius="10" Padding="12,9" Margin="0,0,0,4"
+                                    Background="Transparent" Cursor="Hand" MouseLeftButtonDown="RoomTab_Click">
+                                <TextBlock Text="random" FontSize="13" Foreground="{StaticResource MutedBrush}"/>
+                            </Border>
+                            <Border x:Name="HelpRoomTab" Tag="help" CornerRadius="10" Padding="12,9"
+                                    Background="Transparent" Cursor="Hand" MouseLeftButtonDown="RoomTab_Click">
+                                <TextBlock Text="help" FontSize="13" Foreground="{StaticResource MutedBrush}"/>
+                            </Border>
+                        </StackPanel>
+
+                        <TextBlock Text="ONLINE" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}" Margin="4,0,0,10"/>
+                        <ItemsControl x:Name="OnlineUsersList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="4,4">
+                                        <Ellipse Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding}" Foreground="{StaticResource TextBrush}" FontSize="12" Margin="8,0,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
                 <!-- Header -->
-                <Border Grid.Row="0" Padding="20,4,20,14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <Border Grid.Column="1" Grid.Row="0" Padding="20,4,20,14" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                     <StackPanel Orientation="Horizontal">
                         <Ellipse x:Name="StatusDot" Width="9" Height="9" Fill="#34D399" VerticalAlignment="Center"/>
                         <TextBlock x:Name="StatusText" Text="connected" Foreground="{StaticResource MutedBrush}"
@@ -90,7 +128,7 @@
                 </Border>
 
                 <!-- Messages -->
-                <ScrollViewer Grid.Row="1" x:Name="MessagesScroller" VerticalScrollBarVisibility="Auto" Padding="16,14">
+                <ScrollViewer Grid.Column="1" Grid.Row="1" x:Name="MessagesScroller" VerticalScrollBarVisibility="Auto" Padding="16,14">
                     <ItemsControl x:Name="MessagesList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -118,7 +156,7 @@
                 </ScrollViewer>
 
                 <!-- Input -->
-                <Grid Grid.Row="2" Margin="16,10,16,16">
+                <Grid Grid.Column="1" Grid.Row="2" Margin="16,10,16,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>

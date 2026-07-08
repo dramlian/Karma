@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<PresenceTracker>();
 
 var connectionString = builder.Configuration.GetConnectionString("ChatDb")
     ?? throw new InvalidOperationException("Connection string 'ChatDb' is not configured. Set ConnectionStrings:ChatDb in appsettings.json.");

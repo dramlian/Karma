@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -11,13 +12,16 @@ public partial class MainWindow : Window
     private const string HubUrl = "http://localhost:5000/chathub";
 
     private readonly ObservableCollection<ChatMessage> _messages = new();
+    private readonly ObservableCollection<string> _onlineUsers = new();
     private HubConnection? _connection;
     private string _username = "";
+    private string _currentRoom = "general";
 
     public MainWindow()
     {
         InitializeComponent();
         MessagesList.ItemsSource = _messages;
+        OnlineUsersList.ItemsSource = _onlineUsers;
         Loaded += (_, _) => UsernameInput.Focus();
     }
 
@@ -53,13 +57,24 @@ public partial class MainWindow : Window
         _connection.On<string, string>("ReceiveMessage", (user, message) =>
             Dispatcher.Invoke(() => AddMessage(user, message)));
 
+        _connection.On<List<HistoryMessageDto>>("ReceiveHistory", history =>
+            Dispatcher.Invoke(() => LoadHistory(history)));
+
+        _connection.On<List<string>>("ReceiveOnlineUsers", users =>
+            Dispatcher.Invoke(() => UpdateOnlineUsers(users)));
+
         _connection.Reconnecting += _ => { Dispatcher.Invoke(() => SetStatus("reconnecting…", "#FBBF24")); return Task.CompletedTask; };
-        _connection.Reconnected += _ => { Dispatcher.Invoke(() => SetStatus("connected", "#34D399")); return Task.CompletedTask; };
+        _connection.Reconnected += async _ =>
+        {
+            Dispatcher.Invoke(() => SetStatus("connected", "#34D399"));
+            try { await _connection!.InvokeAsync("JoinRoom", _username, _currentRoom); } catch { }
+        };
         _connection.Closed += _ => { Dispatcher.Invoke(() => SetStatus("disconnected", "#F87171")); return Task.CompletedTask; };
 
         try
         {
             await _connection.StartAsync();
+            await _connection.InvokeAsync("JoinRoom", _username, _currentRoom);
         }
         catch (Exception ex)
         {
@@ -70,6 +85,7 @@ public partial class MainWindow : Window
 
         WhoAmI.Text = _username;
         SetStatus("connected", "#34D399");
+        HighlightActiveRoom(_currentRoom);
         LoginView.Visibility = Visibility.Collapsed;
         ChatView.Visibility = Visibility.Visible;
         MessageInput.Focus();
@@ -88,7 +104,7 @@ public partial class MainWindow : Window
         MessageInput.Clear();
         try
         {
-            await _connection.SendAsync("SendMessage", _username, text);
+            await _connection.SendAsync("SendMessage", _username, _currentRoom, text);
         }
         catch
         {
@@ -100,6 +116,67 @@ public partial class MainWindow : Window
     {
         _messages.Add(new ChatMessage { User = user, Text = message, IsMine = user == _username });
         MessagesScroller.ScrollToEnd();
+    }
+
+    private void LoadHistory(List<HistoryMessageDto> history)
+    {
+        _messages.Clear();
+        foreach (var m in history)
+            _messages.Add(new ChatMessage { User = m.User, Text = m.Content, IsMine = m.User == _username });
+        MessagesScroller.ScrollToEnd();
+    }
+
+    private void UpdateOnlineUsers(List<string> users)
+    {
+        _onlineUsers.Clear();
+        foreach (var user in users) _onlineUsers.Add(user);
+    }
+
+    private void RoomTab_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is Border { Tag: string room }) _ = SwitchRoomAsync(room);
+    }
+
+    private async Task SwitchRoomAsync(string room)
+    {
+        if (room == _currentRoom || _connection is null) return;
+
+        SetRoomSwitchingEnabled(false);
+        _currentRoom = room;
+        HighlightActiveRoom(room);
+        try
+        {
+            await _connection.InvokeAsync("JoinRoom", _username, room);
+        }
+        catch
+        {
+            // Offline; the Reconnected handler will re-join once back online.
+        }
+        finally
+        {
+            SetRoomSwitchingEnabled(true);
+        }
+    }
+
+    private void SetRoomSwitchingEnabled(bool enabled)
+    {
+        SendButton.IsEnabled = enabled;
+        MessageInput.IsEnabled = enabled;
+        GeneralRoomTab.IsEnabled = enabled;
+        RandomRoomTab.IsEnabled = enabled;
+        HelpRoomTab.IsEnabled = enabled;
+    }
+
+    private void HighlightActiveRoom(string room)
+    {
+        var accent = (Brush)new BrushConverter().ConvertFromString("#38BDF8")!;
+        var muted = (Brush)new BrushConverter().ConvertFromString("#8994AD")!;
+        foreach (var tab in new[] { GeneralRoomTab, RandomRoomTab, HelpRoomTab })
+        {
+            var isActive = (string)tab.Tag == room;
+            tab.Background = isActive ? accent : Brushes.Transparent;
+            ((TextBlock)tab.Child).Foreground = isActive ? Brushes.White : muted;
+        }
     }
 
     private void SetStatus(string text, string colorHex)
