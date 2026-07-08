@@ -24,7 +24,7 @@ You need Docker (for MySQL) and the .NET 10 SDK.
 ```powershell
 docker compose up -d                      # starts MySQL
 dotnet run --project ChatApp.Server       # starts the server, applies DB migrations automatically
-dotnet run --project ChatApp.Client       # opens one chat window
+dotnet run --project ChatApp.Client       # opens one chat window, please run it multiple times in mutliple terminal windows
 ```
 
 ## Stack
